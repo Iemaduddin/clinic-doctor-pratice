@@ -1,0 +1,55 @@
+<script setup lang="ts">
+import type { MedicalServiceRow, ServicePayload } from '~~/shared/types/admin'
+
+const props = defineProps<{
+  service?: MedicalServiceRow | null
+  submitting: boolean
+}>()
+
+const emit = defineEmits<{
+  save: [payload: ServicePayload]
+  cancel: []
+}>()
+
+const form = reactive({
+  name: props.service?.name ?? '',
+  description: props.service?.description ?? '',
+  durationMinutes: props.service?.durationMinutes ?? 30,
+  isActive: props.service?.isActive ?? true
+})
+
+function submit() {
+  emit('save', {
+    name: form.name,
+    description: form.description || null,
+    durationMinutes: form.durationMinutes,
+    isActive: form.isActive
+  })
+}
+</script>
+
+<template>
+  <form class="space-y-4" @submit.prevent="submit">
+    <div>
+      <label class="mb-1.5 block text-sm font-medium text-[#0f172a]" for="service-name">Nama layanan</label>
+      <input id="service-name" v-model="form.name" required minlength="2" maxlength="120" class="h-[42px] w-full rounded-lg border border-[#e2e8f0] px-3.5 text-base text-navy outline-none transition-colors focus:border-navy" placeholder="Konsultasi Umum">
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-[#0f172a]" for="service-duration">Durasi (menit)</label>
+        <input id="service-duration" v-model.number="form.durationMinutes" type="number" min="5" max="480" required class="h-[42px] w-full rounded-lg border border-[#e2e8f0] px-3.5 text-base text-navy outline-none transition-colors focus:border-navy">
+      </div>
+      <div class="flex items-end pb-2.5">
+        <label class="flex items-center gap-2 text-base text-[#475569]"><input v-model="form.isActive" type="checkbox" class="size-[18px] rounded border-[#cbd5e1] accent-navy"> Aktif</label>
+      </div>
+    </div>
+    <div>
+      <label class="mb-1.5 block text-sm font-medium text-[#0f172a]" for="service-description">Deskripsi</label>
+      <textarea id="service-description" v-model="form.description" maxlength="1000" rows="4" class="w-full rounded-lg border border-[#e2e8f0] px-3.5 py-3 text-base text-navy outline-none transition-colors focus:border-navy" placeholder="Penjelasan singkat layanan."></textarea>
+    </div>
+    <div class="flex justify-end gap-3 pt-2">
+      <button type="button" class="rounded-lg border border-[#e2e8f0] px-5 py-2.5 text-base font-semibold text-[#475569] transition-colors hover:bg-[#f8fafc]" @click="emit('cancel')">Batal</button>
+      <button type="submit" :disabled="submitting" class="rounded-lg bg-navy px-5 py-2.5 text-base font-bold text-white transition-colors hover:bg-[#020617] disabled:cursor-not-allowed disabled:opacity-40">{{ submitting ? 'Menyimpan...' : 'Simpan layanan' }}</button>
+    </div>
+  </form>
+</template>
