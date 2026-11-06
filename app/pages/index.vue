@@ -3,6 +3,15 @@ import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import { RiAddLine, RiArrowDownLine, RiArrowRightUpLine, RiHealthBookLine, RiHeartPulseLine, RiMapPin2Line, RiStethoscopeLine, RiTimeLine } from 'oh-vue-icons/icons/ri'
 
 addIcons(RiAddLine, RiArrowDownLine, RiArrowRightUpLine, RiHealthBookLine, RiHeartPulseLine, RiMapPin2Line, RiStethoscopeLine, RiTimeLine)
+
+interface PublicService {
+  id: string
+  name: string
+  description: string | null
+  durationMinutes: number
+}
+
+const { data: services } = await useFetch<PublicService[]>('/api/public/services')
 </script>
 
 <template>
@@ -21,7 +30,7 @@ addIcons(RiAddLine, RiArrowDownLine, RiArrowRightUpLine, RiHealthBookLine, RiHea
         <a class="transition-colors hover:text-sage" href="#lokasi">Lokasi</a>
         <a class="transition-colors hover:text-sage" href="#faq">FAQ</a>
       </nav>
-      <a class="inline-flex items-center gap-3 rounded-lg bg-navy px-3.5 py-1.5 text-sm font-bold text-white transition-colors hover:bg-[#020617]" href="#jadwal">Buat Janji <OhVueIcon name="ri-arrow-right-up-line" aria-hidden="true" /></a>
+      <NuxtLink class="inline-flex items-center gap-3 rounded-lg bg-navy px-3.5 py-1.5 text-sm font-bold text-white transition-colors hover:bg-[#020617]" to="/booking">Buat Janji <OhVueIcon name="ri-arrow-right-up-line" aria-hidden="true" /></NuxtLink>
     </header>
 
     <main id="home">
@@ -31,7 +40,7 @@ addIcons(RiAddLine, RiArrowDownLine, RiArrowRightUpLine, RiHealthBookLine, RiHea
           <h1 class="font-display text-[clamp(40px,5vw,56px)] font-bold leading-[1.15] tracking-[-.035em]">Kesehatan Anda,<br /><span class="text-sage">prioritas kami.</span></h1>
           <p class="mb-7 mt-6 max-w-[430px] text-base leading-[1.8] text-[#475569]">Perawatan yang penuh perhatian dari tenaga medis berpengalaman. Kami hadir untuk membantu Anda dan keluarga hidup lebih sehat.</p>
           <div class="flex items-center gap-6">
-            <a class="inline-flex items-center gap-4 rounded-lg bg-navy px-7 py-3 text-base font-bold text-white transition-colors hover:bg-[#020617]" href="#jadwal">Jadwalkan konsultasi <OhVueIcon name="ri-arrow-right-up-line" aria-hidden="true" /></a>
+            <NuxtLink class="inline-flex items-center gap-4 rounded-lg bg-navy px-7 py-3 text-base font-bold text-white transition-colors hover:bg-[#020617]" to="/booking">Jadwalkan konsultasi <OhVueIcon name="ri-arrow-right-up-line" aria-hidden="true" /></NuxtLink>
             <a class="inline-flex items-center gap-2 text-base font-semibold text-navy transition-colors hover:text-sage" href="#layanan">Jelajahi layanan <OhVueIcon name="ri-arrow-down-line" aria-hidden="true" /></a>
           </div>
           <div class="mt-13 flex items-center gap-3.5">
@@ -69,11 +78,10 @@ addIcons(RiAddLine, RiArrowDownLine, RiArrowRightUpLine, RiHealthBookLine, RiHea
           <div><p class="mb-[18px] text-sm font-bold uppercase tracking-[.17em] text-sage">LAYANAN KAMI</p><h2 class="font-display text-[40px] font-semibold leading-[1.15] tracking-[-.035em]">Perawatan untuk setiap<br />tahap kehidupan.</h2></div>
           <a class="inline-flex items-center gap-2 text-base font-semibold text-navy transition-colors hover:text-sage" href="#jadwal">Lihat jadwal layanan <OhVueIcon name="ri-arrow-right-up-line" aria-hidden="true" /></a>
         </div>
-        <div class="grid gap-4 md:grid-cols-3">
-          <article class="relative min-h-[225px] rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-[0_2px_6px_#0f172a0d]"><span class="text-2xl text-sage"><OhVueIcon name="ri-heart-pulse-line" /></span><span class="absolute right-6 top-6 font-mono text-sm text-[#64748b]">01</span><h3 class="mb-2 mt-7 font-display text-[17px] font-semibold">Konsultasi Umum</h3><p class="max-w-[245px] text-base leading-[1.7] text-[#475569]">Pemeriksaan menyeluruh untuk menjaga kesehatan Anda dan keluarga.</p><a class="absolute bottom-5 right-6 text-sage" href="#jadwal" aria-label="Lihat jadwal konsultasi umum"><OhVueIcon name="ri-arrow-right-up-line" /></a></article>
-          <article class="relative min-h-[225px] rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-[0_2px_6px_#0f172a0d]"><span class="text-2xl text-sage"><OhVueIcon name="ri-health-book-line" /></span><span class="absolute right-6 top-6 font-mono text-sm text-[#64748b]">02</span><h3 class="mb-2 mt-7 font-display text-[17px] font-semibold">Kesehatan Keluarga</h3><p class="max-w-[245px] text-base leading-[1.7] text-[#475569]">Pendampingan kesehatan untuk setiap generasi, dari anak hingga lansia.</p><a class="absolute bottom-5 right-6 text-sage" href="#jadwal" aria-label="Lihat jadwal layanan kesehatan keluarga"><OhVueIcon name="ri-arrow-right-up-line" /></a></article>
-          <article class="relative min-h-[225px] rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-[0_2px_6px_#0f172a0d]"><span class="text-2xl text-sage"><OhVueIcon name="ri-stethoscope-line" /></span><span class="absolute right-6 top-6 font-mono text-sm text-[#64748b]">03</span><h3 class="mb-2 mt-7 font-display text-[17px] font-semibold">Pemeriksaan Rutin</h3><p class="max-w-[245px] text-base leading-[1.7] text-[#475569]">Kenali kondisi tubuh lebih awal dengan pemeriksaan berkala.</p><a class="absolute bottom-5 right-6 text-sage" href="#jadwal" aria-label="Lihat jadwal pemeriksaan rutin"><OhVueIcon name="ri-arrow-right-up-line" /></a></article>
+        <div v-if="services?.length" class="grid gap-4 md:grid-cols-3">
+          <article v-for="(service, index) in services" :key="service.id" class="relative min-h-[225px] rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-[0_2px_6px_#0f172a0d]"><span class="text-2xl text-sage"><OhVueIcon :name="index % 2 ? 'ri-health-book-line' : 'ri-heart-pulse-line'" /></span><span class="absolute right-6 top-6 font-mono text-sm text-[#64748b]">{{ String(index + 1).padStart(2, '0') }}</span><h3 class="mb-2 mt-7 font-display text-[17px] font-semibold">{{ service.name }}</h3><p class="max-w-[245px] text-base leading-[1.7] text-[#475569]">{{ service.description || `Layanan konsultasi medis dengan durasi sekitar ${service.durationMinutes} menit.` }}</p><NuxtLink class="absolute bottom-5 right-6 text-sage" :to="`/booking?service=${service.id}`" :aria-label="`Buat janji untuk ${service.name}`"><OhVueIcon name="ri-arrow-right-up-line" /></NuxtLink></article>
         </div>
+        <p v-else class="rounded-xl border border-[#e2e8f0] bg-white p-6 text-center text-base text-[#64748b]">Informasi layanan akan segera tersedia.</p>
       </section>
 
       <section id="tentang" class="border-y border-[#e2e8f0] bg-white px-[15%] py-16 text-center"><p class="font-serif text-[56px] text-sage">“</p><blockquote class="mx-auto mb-6 max-w-[740px] font-display text-[clamp(22px,3vw,35px)] font-medium leading-[1.5] tracking-[-.03em]">Kami percaya, pelayanan kesehatan terbaik dimulai dari <em class="not-italic text-sage">mendengarkan.</em></blockquote><span class="text-sm tracking-[.16em] text-[#64748b]">KLINIK SEHAT — PEDULI SEPENUH HATI</span></section>
