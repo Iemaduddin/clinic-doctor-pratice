@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  CLINIC_ADMIN
+  DOCTOR
+  PATIENT
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  phone         String?   @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          Role      @default(PATIENT)
+  sessions      Session[]
+  accounts      Account[]
+  doctor        Doctor?
+  patient       Patient?
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Specialization {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  doctors     Doctor[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Doctor {
+  id                  String           @id @default(cuid())
+  userId              String?          @unique
+  user                User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  specializationId    String
+  specialization      Specialization   @relation(fields: [specializationId], references: [id], onDelete: Restrict)
+  name                String
+  slug                String           @unique
+  bio                 String?
+  photoUrl            String?
+  slotDurationMinutes Int              @default(30)
+  isActive            Boolean          @default(true)
+  schedules           DoctorSchedule[]
+  appointments        Appointment[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@index([specializationId])
+  @@index([isActive])
+}
+
+model MedicalService {
+  id              String        @id @default(cuid())
+  name            String
+  slug            String        @unique
+  description     String?
+  durationMinutes Int           @default(30)
+  isActive        Boolean       @default(true)
+  appointments    Appointment[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model DoctorSchedule {
+  id        String   @id @default(cuid())
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([doctorId, dayOfWeek, startTime])
+  @@index([doctorId])
+}
+
+model Patient {
+  id           String        @id @default(cuid())
+  userId       String?       @unique
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name         String
+  phone        String
+  email        String?
+  birthDate    DateTime?
+  gender       String?
+  address      String?
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([phone])
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  bookingCode   String            @unique
+  doctorId      String
+  doctor        Doctor            @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  serviceId     String
+  service       MedicalService    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  patientId     String
+  patient       Patient           @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  startAt       DateTime
+  endAt         DateTime
+  status        AppointmentStatus @default(PENDING)
+  activeSlotKey String?           @unique
+  note          String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([doctorId, startAt])
+  @@index([patientId, createdAt])
+  @@index([status])
+}
+
+model ClinicProfile {
+  id        String   @id @default("default")
+  name      String
+  tagline   String?
+  about     String?
+  address   String
+  phone     String
+  whatsapp  String
+  email     String
+  mapsUrl   String?
+  timezone  String   @default("Asia/Jakarta")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClinicFacility {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  patientName String
+  content     String
+  rating      Int      @default(5)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

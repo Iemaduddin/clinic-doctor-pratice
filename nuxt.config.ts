@@ -14,6 +14,10 @@ export default defineNuxtConfig({
     }
   },
   compatibilityDate: '2025-07-15',
-  components: [{ path: '~/features/landing/sections', pathPrefix: false }],
+  components: [
+    { path: '~/components', pathPrefix: false },
+    { path: '~/features/admin/components', pathPrefix: false },
+    { path: '~/features/landing/sections', pathPrefix: false }
+  ],
   devtools: { enabled: true }
 })
