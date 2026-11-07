@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { hashPassword } from 'better-auth/crypto'
 import { z } from 'zod'
 import { prisma } from '~~/lib/prisma'
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     if (admins <= 1) throw createError({ statusCode: 400, statusMessage: 'Super Admin terakhir tidak dapat diturunkan' })
   }
   const { password, ...userData } = parsed.data
-  return prisma.$transaction(async (tx) => {
+  const user = await prisma.$transaction(async (tx) => {
     const user = await tx.user.update({ where: { id }, data: userData, select: { id: true, name: true, email: true, phone: true, role: true, createdAt: true } })
     if (password) {
       const account = await tx.account.findFirst({ where: { userId: id, providerId: 'credential' }, select: { id: true } })
@@ -32,4 +33,6 @@ export default defineEventHandler(async (event) => {
     }
     return user
   })
+  await logAdminAction(event, 'UPDATE', 'USER', id, '')
+  return user
 })

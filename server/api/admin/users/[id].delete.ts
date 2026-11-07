@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { prisma } from '~~/lib/prisma'
 import { requireRole } from '~~/server/utils/rbac'
 
@@ -15,5 +16,6 @@ export default defineEventHandler(async (event) => {
     }
     await tx.user.delete({ where: { id } })
   })
+  await logAdminAction(event, 'DELETE', 'USER', id, '')
   return { success: true }
 })

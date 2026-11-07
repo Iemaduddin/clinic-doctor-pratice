@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { z } from 'zod'
 import { auth } from '~~/lib/auth'
 import { prisma } from '~~/lib/prisma'
@@ -15,6 +16,7 @@ export default defineEventHandler(async (event) => {
   try {
     const result = await auth.api.signUpEmail({ body: { name, email, password } })
     const user = await prisma.user.update({ where: { id: result.user.id }, data: { role, phone: phone || null }, select: safeSelect })
+    await logAdminAction(event, 'CREATE', 'USER', user.id, '')
     setResponseStatus(event, 201)
     return user
   } catch (error) {
