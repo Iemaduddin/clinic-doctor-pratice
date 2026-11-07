@@ -1,4 +1,5 @@
 import { prisma } from '~~/lib/prisma'
+import { isWithinOpenRanges, overlapsAnyRange, timeToMinutes } from '~~/server/utils/schedule-exceptions'
 import { publicBookingSchema } from '~~/shared/validation/booking'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
 import { parseBody } from '~~/server/utils/validation'
@@ -47,6 +48,30 @@ export default defineEventHandler(async (event) => {
 
   try {
     const appointment = await prisma.$transaction(async (tx) => {
+      const date = new Date(`${data.date}T00:00:00.000Z`)
+      const dayOfWeek = new Date(`${data.date}T12:00:00+07:00`).getUTCDay()
+      const startMinutes = timeToMinutes(data.startTime)
+      const endMinutes = startMinutes + durationMs / 60000
+      const [weeklySchedules, exceptions] = await Promise.all([
+        tx.doctorSchedule.findMany({ where: { doctorId: doctor.id, dayOfWeek, isActive: true }, select: { startTime: true, endTime: true } }),
+        tx.doctorScheduleException.findMany({ where: { doctorId: doctor.id, date }, select: { kind: true, startTime: true, endTime: true } })
+      ])
+      const openRanges = [
+        ...weeklySchedules,
+        ...exceptions.filter((item) => item.kind === 'OPEN' && item.startTime && item.endTime).map((item) => ({ startTime: item.startTime!, endTime: item.endTime! }))
+      ]
+      const closedRanges = exceptions.filter((item) => item.kind === 'CLOSED')
+      const fullDayClosed = closedRanges.some((item) => !item.startTime && !item.endTime)
+      const closedIntervals = closedRanges.filter((item) => item.startTime && item.endTime).map((item) => ({ startTime: item.startTime!, endTime: item.endTime! }))
+      if (fullDayClosed || !isWithinOpenRanges(startMinutes, endMinutes, openRanges, doctor.slotDurationMinutes) || overlapsAnyRange(startMinutes, endMinutes, closedIntervals)) {
+        throw createError({ statusCode: 409, statusMessage: 'Waktu reservasi tidak tersedia. Silakan pilih slot lain.' })
+      }
+      const overlappingAppointment = await tx.appointment.findFirst({
+        where: { doctorId: doctor.id, status: { in: ['PENDING', 'CONFIRMED'] }, startAt: { lt: endAt }, endAt: { gt: startAt } },
+        select: { id: true }
+      })
+      if (overlappingAppointment) throw createError({ statusCode: 409, statusMessage: 'Slot waktu ini baru saja dipesan pasien lain. Silakan pilih waktu lain.' })
+
       // Find or create patient by phone
       let patient = await tx.patient.findFirst({
         where: { phone: data.patientPhone }

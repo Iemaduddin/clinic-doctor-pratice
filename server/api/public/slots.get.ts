@@ -1,4 +1,5 @@
 import { prisma } from '~~/lib/prisma'
+import { overlaps, timeToMinutes } from '~~/server/utils/schedule-exceptions'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
@@ -35,46 +36,52 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  if (!doctor || !doctor.schedules.length) {
-    return []
-  }
+  if (!doctor) return []
 
-  // Find start and end of target day in UTC to query appointments
-  const startOfDay = new Date(`${dateStr}T00:00:00+07:00`)
-  const endOfDay = new Date(`${dateStr}T23:59:59.999+07:00`)
+  const exceptionDate = new Date(`${dateStr}T00:00:00.000Z`)
+  const exceptions = await prisma.doctorScheduleException.findMany({ where: { doctorId, date: exceptionDate } })
+  const openRanges = [
+    ...doctor.schedules.map(({ startTime, endTime }) => ({ startTime, endTime })),
+    ...exceptions.filter((exception) => exception.kind === 'OPEN' && exception.startTime && exception.endTime).map((exception) => ({ startTime: exception.startTime!, endTime: exception.endTime! }))
+  ]
+  if (!openRanges.length) return []
+  const closedRanges = exceptions.filter((exception) => exception.kind === 'CLOSED')
+  const closedAllDay = closedRanges.some((exception) => !exception.startTime && !exception.endTime)
+  if (closedAllDay) return []
+  const closedIntervals = closedRanges.filter((exception) => exception.startTime && exception.endTime).map((exception) => ({ startTime: exception.startTime!, endTime: exception.endTime! }))
+  const slotDuration = doctor.slotDurationMinutes
+  const dayStartMinutes = Date.parse(`${dateStr}T00:00:00+07:00`)
+  const dayEndMinutes = dayStartMinutes + 24 * 60 * 60 * 1000
+  const startOfDay = new Date(dayStartMinutes)
+  const endOfDay = new Date(dayEndMinutes)
 
   const bookedAppointments = await prisma.appointment.findMany({
     where: {
       doctorId,
-      startAt: { gte: startOfDay, lte: endOfDay },
+      startAt: { lt: endOfDay },
+      endAt: { gt: startOfDay },
       status: { in: ['PENDING', 'CONFIRMED'] }
     },
-    select: { startAt: true }
+    select: { startAt: true, endAt: true }
   })
 
-  const bookedTimeStrings = new Set(
-    bookedAppointments.map((app) => {
-      // Format startAt to HH:mm in WIB (+07:00)
-      const d = new Date(app.startAt)
-      const wibHours = String((d.getUTCHours() + 7) % 24).padStart(2, '0')
-      const wibMinutes = String(d.getUTCMinutes()).padStart(2, '0')
-      return `${wibHours}:${wibMinutes}`
-    })
-  )
+  const bookedIntervals = bookedAppointments.map((appointment) => ({
+    start: (appointment.startAt.getTime() - dayStartMinutes) / 60000,
+    end: (appointment.endAt.getTime() - dayStartMinutes) / 60000
+  }))
 
   const now = new Date()
-  const isToday = dateStr === now.toISOString().slice(0, 10)
-  const currentWibMinutes = (now.getUTCHours() + 7) * 60 + now.getUTCMinutes()
-
+  const localDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+  const isToday = dateStr === localDate
+  const localTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now)
+  const currentWibMinutes = timeToMinutes(localTime)
   const slots: Array<{ time: string; startAt: string; available: boolean }> = []
+  const seen = new Set<string>()
 
-  for (const schedule of doctor.schedules) {
-    const [startH, startM] = schedule.startTime.split(':').map(Number)
-    const [endH, endM] = schedule.endTime.split(':').map(Number)
-
-    let currentMinutes = startH * 60 + startM
-    const scheduleEndMinutes = endH * 60 + endM
-    const duration = doctor.slotDurationMinutes
+  for (const schedule of openRanges) {
+    let currentMinutes = timeToMinutes(schedule.startTime)
+    const scheduleEndMinutes = timeToMinutes(schedule.endTime)
+    const duration = slotDuration
 
     while (currentMinutes + duration <= scheduleEndMinutes) {
       const h = String(Math.floor(currentMinutes / 60)).padStart(2, '0')
@@ -82,14 +89,15 @@ export default defineEventHandler(async (event) => {
       const timeStr = `${h}:${m}`
 
       const startAtISO = `${dateStr}T${timeStr}:00+07:00`
-      const isBooked = bookedTimeStrings.has(timeStr)
+      const endMinutes = currentMinutes + duration
+      const isBooked = bookedIntervals.some((interval) => overlaps(currentMinutes, endMinutes, interval.start, interval.end))
+      const isClosed = closedIntervals.some((range) => overlaps(currentMinutes, endMinutes, timeToMinutes(range.startTime), timeToMinutes(range.endTime)))
       const isPast = isToday && currentMinutes <= currentWibMinutes
 
-      slots.push({
-        time: timeStr,
-        startAt: startAtISO,
-        available: !isBooked && !isPast
-      })
+      if (!seen.has(startAtISO)) {
+        slots.push({ time: timeStr, startAt: startAtISO, available: !isBooked && !isClosed && !isPast })
+        seen.add(startAtISO)
+      }
 
       currentMinutes += duration
     }

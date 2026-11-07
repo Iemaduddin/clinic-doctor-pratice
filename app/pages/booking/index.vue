@@ -91,10 +91,10 @@ watch(
 // Auto select first doctor and service if query params or list loaded
 onMounted(() => {
   if (!selectedDoctorId.value && doctors.value?.length) {
-    selectedDoctorId.value = doctors.value[0].id
+    selectedDoctorId.value = doctors.value[0]!.id
   }
   if (!selectedServiceId.value && services.value?.length) {
-    selectedServiceId.value = services.value[0].id
+    selectedServiceId.value = services.value[0]!.id
   }
 })
 

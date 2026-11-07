@@ -115,7 +115,7 @@ useHead({ title: computed(() => `Reservasi ${code.value} | Klinik Sehat`) })
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f8fafc] text-navy">
+  <div class="min-h-screen bg-[#f8fafc] text-navy print:min-h-0 print:bg-white print:font-sans">
     <!-- Header -->
     <header class="border-b border-[#e2e8f0] bg-white print:hidden">
       <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
@@ -129,7 +129,7 @@ useHead({ title: computed(() => `Reservasi ${code.value} | Klinik Sehat`) })
       </div>
     </header>
 
-    <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+    <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 print:max-w-none print:px-0 print:py-0">
       <div v-if="error || !appointment" class="rounded-2xl border border-[#fef2f2] bg-white p-8 text-center shadow-sm">
         <OhVueIcon name="ri-close-line" class="mx-auto mb-3 size-12 text-[#b91c1c]" />
         <h1 class="font-display text-2xl font-bold text-navy">Reservasi Tidak Ditemukan</h1>
@@ -182,7 +182,7 @@ useHead({ title: computed(() => `Reservasi ${code.value} | Klinik Sehat`) })
           <div class="p-6 sm:p-8 space-y-6">
             <!-- Doctor & Service -->
             <div class="flex items-start gap-4 border-b border-[#e2e8f0] pb-6">
-              <img v-if="appointment.doctor.photoUrl" :src="appointment.doctor.photoUrl" :alt="appointment.doctor.name" class="size-14 rounded-full object-cover border border-[#e2e8f0]">
+              <img v-if="appointment.doctor.photoUrl" :src="appointment.doctor.photoUrl" :alt="appointment.doctor.name" class="size-14 rounded-full object-cover border border-[#e2e8f0] print:hidden">
               <div v-else class="grid size-14 place-items-center rounded-full bg-[#f1f5f9] text-navy"><OhVueIcon name="ri-stethoscope-line" class="size-7" /></div>
               <div>
                 <p class="font-display text-xl font-bold text-navy">{{ appointment.doctor.name }}</p>
