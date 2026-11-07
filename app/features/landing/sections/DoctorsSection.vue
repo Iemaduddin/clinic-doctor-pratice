@@ -25,7 +25,7 @@ function formatDoctorSchedule(schedules: PublicDoctor['schedules']) {
   <section id="dokter" class="scroll-mt-6 bg-[#f8fafc] px-[10%] py-20 text-navy">
     <div class="mx-auto mb-9 max-w-[700px] text-center">
       <p class="mb-3 text-sm font-bold uppercase tracking-[.12em] text-sage">TENAGA MEDIS</p>
-      <h2 class="mb-4 font-display text-[clamp(32px,4vw,44px)] font-semibold leading-[1.2]">Tim yang mendampingi Anda.</h2>
+      <h2 class="mb-4 font-display text-[clamp(32px,4vw,44px)] font-semibold leading-[1.2]">Tim yang mendampingi Anda</h2>
       <p class="text-base leading-relaxed text-[#64748b]">Dokter kami menggabungkan pengalaman klinis dengan komunikasi yang terbuka agar setiap kunjungan terasa jelas dan nyaman.</p>
     </div>
 

@@ -5,6 +5,8 @@ const props = defineProps<{
   schedule?: ScheduleRow | null
   doctors: DoctorOption[]
   submitting: boolean
+  initialDoctorId?: string
+  initialDayOfWeek?: number
 }>()
 
 const emit = defineEmits<{
@@ -23,8 +25,8 @@ const days = [
 ]
 
 const form = reactive({
-  doctorId: props.schedule?.doctorId ?? props.doctors[0]?.id ?? '',
-  dayOfWeek: props.schedule?.dayOfWeek ?? 1,
+  doctorId: props.schedule?.doctorId ?? props.initialDoctorId ?? props.doctors[0]?.id ?? '',
+  dayOfWeek: props.schedule?.dayOfWeek ?? props.initialDayOfWeek ?? 1,
   startTime: props.schedule?.startTime ?? '08:00',
   endTime: props.schedule?.endTime ?? '12:00',
   isActive: props.schedule?.isActive ?? true

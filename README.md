@@ -1,75 +1,37 @@
-# Nuxt Minimal Starter
+# Clinic Doctor Practice
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Clinic appointment booking and management app built with Nuxt, Prisma, and PostgreSQL.
 
 ## Setup
 
-Make sure to install dependencies:
+Requirements: Node.js 22 and PostgreSQL.
 
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+```sh
+npm ci
+Copy-Item .env.example .env
 ```
 
-## Development Server
+Set `DATABASE_URL` to your PostgreSQL connection string, `BETTER_AUTH_SECRET` to a random secret of at least 32 characters, and `BETTER_AUTH_URL` to the app's base URL. Keep `.env` private.
 
-Start the development server on `http://localhost:3000`:
+## Database
 
-```bash
-# npm
+Create the configured database, then apply migrations and seed initial data:
+
+```sh
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+`npm run db:studio` opens Prisma Studio.
+
+## Run and check
+
+```sh
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
+npm run typecheck
+npm test
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Development server runs at http://localhost:3000.

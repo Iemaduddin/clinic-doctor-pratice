@@ -5,6 +5,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "nuxt prepare && vue-tsc --noEmit -p .nuxt/tsconfig.app.json && vue-tsc --noEmit -p .nuxt/tsconfig.server.json && vue-tsc --noEmit -p .nuxt/tsconfig.shared.json && vue-tsc --noEmit -p .nuxt/tsconfig.node.json",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -28,8 +30,11 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@tailwindcss/vite": "^4.3.4",
+    "@types/node": "^26.6.6",
     "prisma": "^6.19.3",
     "tailwindcss": "^4.3.4",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.14"
   }
 }
