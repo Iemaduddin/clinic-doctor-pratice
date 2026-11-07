@@ -35,6 +35,30 @@ export const serviceSchema = z.object({
   isActive: z.boolean()
 })
 
+export const scheduleExceptionSchema = z
+  .object({
+    doctorId: z.string().trim().min(1, 'Dokter wajib dipilih'),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
+      const parsed = new Date(`${value}T00:00:00.000Z`)
+      return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
+    }, 'Tanggal tidak valid'),
+    kind: z.enum(['CLOSED', 'OPEN']),
+    startTime: time.nullish().transform((value) => value || null),
+    endTime: time.nullish().transform((value) => value || null),
+    reason: nullableText(500)
+  })
+  .superRefine((data, context) => {
+    if (data.kind === 'OPEN' && (!data.startTime || !data.endTime)) {
+      context.addIssue({ code: 'custom', message: 'Jam mulai dan selesai wajib diisi', path: ['startTime'] })
+    }
+    if ((data.startTime === null) !== (data.endTime === null)) {
+      context.addIssue({ code: 'custom', message: 'Isi kedua jam atau biarkan kosong', path: ['endTime'] })
+    }
+    if (data.startTime && data.endTime && data.startTime >= data.endTime) {
+      context.addIssue({ code: 'custom', message: 'Jam selesai harus setelah jam mulai', path: ['endTime'] })
+    }
+  })
+
 export const scheduleSchema = z
   .object({
     doctorId: z.string().trim().min(1, 'Dokter wajib dipilih'),

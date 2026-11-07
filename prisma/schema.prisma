@@ -21,6 +21,11 @@ enum AppointmentStatus {
   COMPLETED
 }
 
+enum ScheduleExceptionKind {
+  CLOSED
+  OPEN
+}
+
 model User {
   id            String    @id
   name          String
@@ -111,6 +116,7 @@ model Doctor {
   slotDurationMinutes Int              @default(30)
   isActive            Boolean          @default(true)
   schedules           DoctorSchedule[]
+  scheduleExceptions  DoctorScheduleException[]
   appointments        Appointment[]
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
@@ -144,6 +150,21 @@ model DoctorSchedule {
 
   @@unique([doctorId, dayOfWeek, startTime])
   @@index([doctorId])
+}
+
+model DoctorScheduleException {
+  id        String                @id @default(cuid())
+  doctorId  String
+  doctor    Doctor                @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  date      DateTime              @db.Date
+  kind      ScheduleExceptionKind
+  startTime String?
+  endTime   String?
+  reason    String?
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@index([doctorId, date])
 }
 
 model Patient {
@@ -228,4 +249,18 @@ model Faq {
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  actorName String
+  action    String
+  entity    String
+  entityId  String?
+  summary   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
 }
