@@ -1,13 +1,31 @@
 <script setup lang="ts">
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import { RiAddLine, RiCloseLine, RiDeleteBinLine, RiEditLine, RiStethoscopeLine } from 'oh-vue-icons/icons/ri'
-import type { DoctorPayload, DoctorRow, SpecializationOption } from '~~/shared/types/admin'
+import type { DoctorPayload, DoctorRow, Paginated, SpecializationOption } from '~~/shared/types/admin'
 
 addIcons(RiAddLine, RiCloseLine, RiDeleteBinLine, RiEditLine, RiStethoscopeLine)
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
-const { data: doctors, refresh: refreshDoctors, pending } = await useFetch<DoctorRow[]>('/api/admin/doctors')
+const search = ref('')
+const debouncedSearch = ref('')
+const page = ref(1)
+const pageSize = ref(10)
+let searchTimer: ReturnType<typeof setTimeout>
+watch(search, (value) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    debouncedSearch.value = value
+    page.value = 1
+  }, 300)
+})
+watch(pageSize, () => { page.value = 1 })
+
+const { data, refresh: refreshDoctors, pending } = await useFetch<Paginated<DoctorRow>>('/api/admin/doctors', {
+  query: { page, pageSize, search: debouncedSearch },
+  watch: [page, pageSize, debouncedSearch]
+})
+const doctors = computed(() => data.value?.items ?? [])
 const { data: specializations, refresh: refreshSpecializations } = await useFetch<SpecializationOption[]>('/api/admin/specializations')
 
 const showForm = ref(false)
@@ -151,6 +169,13 @@ useHead({ title: 'Kelola Dokter | Klinik Sehat' })
     <p v-if="pageError" class="mb-4 rounded-lg bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]" role="alert">{{ pageError }}</p>
     <p v-if="notice" class="mb-4 rounded-lg bg-[#ecfdf5] px-4 py-3 text-sm text-sage-dark" role="status">{{ notice }}</p>
 
+    <div class="mb-4 flex flex-wrap gap-3">
+      <input v-model="search" type="search" placeholder="Cari nama dokter..." aria-label="Cari dokter" class="h-[42px] min-w-60 flex-1 rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-base text-navy outline-none focus:border-navy">
+      <select v-model.number="pageSize" aria-label="Jumlah baris per halaman" class="h-[42px] rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-base text-navy outline-none focus:border-navy">
+        <option :value="10">10 per halaman</option><option :value="25">25 per halaman</option><option :value="50">50 per halaman</option>
+      </select>
+    </div>
+
     <section class="mb-6 rounded-2xl border border-[#e2e8f0] bg-white p-5">
       <h2 class="font-display text-lg font-semibold text-navy">Spesialisasi</h2>
       <p class="mt-1 text-sm text-[#64748b]">Dibutuhkan sebelum menambah dokter.</p>
@@ -198,6 +223,10 @@ useHead({ title: 'Kelola Dokter | Klinik Sehat' })
             </tr>
           </tbody>
         </table>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-5 py-4 text-sm text-[#64748b]">
+        <span>Menampilkan {{ data?.total ? ((page - 1) * pageSize + 1) : 0 }}–{{ Math.min(page * pageSize, data?.total ?? 0) }} dari {{ data?.total ?? 0 }} dokter</span>
+        <div class="flex items-center gap-2"><button type="button" :disabled="page <= 1 || pending" class="rounded-lg border border-[#e2e8f0] px-3 py-2 font-medium text-navy disabled:opacity-40" @click="page--">Sebelumnya</button><span>Halaman {{ page }} dari {{ data?.totalPages ?? 1 }}</span><button type="button" :disabled="page >= (data?.totalPages ?? 1) || pending" class="rounded-lg border border-[#e2e8f0] px-3 py-2 font-medium text-navy disabled:opacity-40" @click="page++">Berikutnya</button></div>
       </div>
     </div>
 

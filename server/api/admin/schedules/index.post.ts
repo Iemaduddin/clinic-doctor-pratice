@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { prisma } from '~~/lib/prisma'
 import { scheduleSchema } from '~~/shared/validation/admin'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
       data,
       include: { doctor: { select: { id: true, name: true, isActive: true } } }
     })
+    await logAdminAction(event, 'CREATE', 'SCHEDULE', schedule.id, '')
     setResponseStatus(event, 201)
     return schedule
   } catch (error) {

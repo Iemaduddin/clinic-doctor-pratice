@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { prisma } from '~~/lib/prisma'
 import { specializationSchema } from '~~/shared/validation/admin'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
@@ -13,7 +14,9 @@ export default defineEventHandler(async (event) => {
   const slug = data.name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'item'
 
   try {
-    return await prisma.specialization.update({ where: { id }, data: { ...data, slug } })
+    const result = await prisma.specialization.update({ where: { id }, data: { ...data, slug } })
+    await logAdminAction(event, 'UPDATE', 'SPECIALIZATION', id, '')
+    return result
   } catch (error) {
     throwPrismaError(error)
   }

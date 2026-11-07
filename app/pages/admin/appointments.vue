@@ -10,6 +10,7 @@ import {
   RiUser3Line,
   RiWhatsappLine
 } from 'oh-vue-icons/icons/ri'
+import type { Paginated } from '~~/shared/types/admin'
 
 addIcons(
   RiCalendarLine,
@@ -36,13 +37,29 @@ interface AdminAppointment {
 }
 
 const statusFilter = ref('')
+const search = ref('')
+const debouncedSearch = ref('')
+const page = ref(1)
+const pageSize = ref(10)
 const pageError = ref('')
 const notice = ref('')
 const updatingId = ref<string | null>(null)
 
-const { data: appointments, refresh, pending } = await useFetch<AdminAppointment[]>('/api/admin/appointments', {
-  query: computed(() => ({ status: statusFilter.value }))
+let searchTimer: ReturnType<typeof setTimeout>
+watch(search, (value) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    debouncedSearch.value = value
+    page.value = 1
+  }, 300)
 })
+watch([statusFilter, pageSize], () => { page.value = 1 })
+
+const { data, refresh, pending } = await useFetch<Paginated<AdminAppointment>>('/api/admin/appointments', {
+  query: { page, pageSize, search: debouncedSearch, status: statusFilter },
+  watch: [page, pageSize, debouncedSearch, statusFilter]
+})
+const appointments = computed(() => data.value?.items ?? [])
 
 async function updateStatus(id: string, newStatus: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED') {
   updatingId.value = id
@@ -140,6 +157,13 @@ useHead({ title: 'Manajemen Reservasi | Klinik Sehat' })
     <p v-if="pageError" class="mb-4 rounded-xl bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]" role="alert">{{ pageError }}</p>
     <p v-if="notice" class="mb-4 rounded-xl bg-[#ecfdf5] px-4 py-3 text-sm text-sage-dark" role="status">{{ notice }}</p>
 
+    <div class="mb-4 flex flex-wrap gap-3">
+      <input v-model="search" type="search" placeholder="Cari kode booking, nama, nomor HP..." aria-label="Cari reservasi" class="h-[42px] min-w-60 flex-1 rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-base text-navy outline-none focus:border-navy">
+      <select v-model.number="pageSize" aria-label="Jumlah baris per halaman" class="h-[42px] rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-base text-navy outline-none focus:border-navy">
+        <option :value="10">10 per halaman</option><option :value="25">25 per halaman</option><option :value="50">50 per halaman</option>
+      </select>
+    </div>
+
     <!-- Table -->
     <div class="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-xs">
       <div v-if="pending" class="p-8 text-center text-base text-[#64748b]">Memuat data reservasi...</div>
@@ -234,6 +258,10 @@ useHead({ title: 'Manajemen Reservasi | Klinik Sehat' })
             </tr>
           </tbody>
         </table>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-5 py-4 text-sm text-[#64748b]">
+        <span>Menampilkan {{ data?.total ? ((page - 1) * pageSize + 1) : 0 }}–{{ Math.min(page * pageSize, data?.total ?? 0) }} dari {{ data?.total ?? 0 }} reservasi</span>
+        <div class="flex items-center gap-2"><button type="button" :disabled="page <= 1 || pending" class="rounded-lg border border-[#e2e8f0] px-3 py-2 font-medium text-navy disabled:opacity-40" @click="page--">Sebelumnya</button><span>Halaman {{ page }} dari {{ data?.totalPages ?? 1 }}</span><button type="button" :disabled="page >= (data?.totalPages ?? 1) || pending" class="rounded-lg border border-[#e2e8f0] px-3 py-2 font-medium text-navy disabled:opacity-40" @click="page++">Berikutnya</button></div>
       </div>
     </div>
   </div>

@@ -4,6 +4,7 @@ import { parseBody } from '~~/server/utils/validation'
 import { doctorSchema } from '~~/shared/validation/admin'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
 import { uniqueSlug } from '~~/server/utils/slug'
+import { logAdminAction } from '~~/server/utils/audit-log'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
@@ -14,6 +15,7 @@ export default defineEventHandler(async (event) => {
       data: { ...data, slug } as never,
       include: { specialization: true, schedules: true }
     })
+    await logAdminAction(event, 'CREATE', 'DOCTOR', doctor.id, '')
     setResponseStatus(event, 201)
     return doctor
   } catch (error) {

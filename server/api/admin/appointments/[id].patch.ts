@@ -1,40 +1,22 @@
-import { z } from 'zod'
 import { prisma } from '~~/lib/prisma'
+import { appointmentStatusSchema, assertStatusTransition } from '~~/server/utils/appointment-status'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
 import { requireAdmin } from '~~/server/utils/rbac'
 import { parseBody } from '~~/server/utils/validation'
-
-const updateStatusSchema = z.object({
-  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])
-})
+import { logAdminAction } from '~~/server/utils/audit-log'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
   const id = getRouterParam(event, 'id')
   if (!id) throw createError({ statusCode: 400, statusMessage: 'ID wajib diisi' })
 
-  const body = await parseBody(event, updateStatusSchema)
+  const body = await parseBody(event, appointmentStatusSchema)
 
   const appointment = await prisma.appointment.findUnique({ where: { id } })
   if (!appointment) throw createError({ statusCode: 404, statusMessage: 'Reservasi tidak ditemukan' })
 
-  // Validate allowed status transitions according to PRD rule
-  // Pending -> Confirmed or Cancelled
-  // Confirmed -> Completed or Cancelled
-  const current = appointment.status
   const next = body.status
-
-  if (current === 'CANCELLED' || current === 'COMPLETED') {
-    throw createError({ statusCode: 400, statusMessage: `Status ${current} tidak dapat diubah lagi` })
-  }
-
-  if (current === 'PENDING' && !['CONFIRMED', 'CANCELLED'].includes(next)) {
-    throw createError({ statusCode: 400, statusMessage: 'Reservasi Pending hanya dapat diubah ke Confirmed atau Cancelled' })
-  }
-
-  if (current === 'CONFIRMED' && !['COMPLETED', 'CANCELLED'].includes(next)) {
-    throw createError({ statusCode: 400, statusMessage: 'Reservasi Confirmed hanya dapat diubah ke Completed atau Cancelled' })
-  }
+  assertStatusTransition(appointment.status, next)
 
   try {
     const updated = await prisma.appointment.update({
@@ -51,6 +33,7 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    await logAdminAction(event, 'UPDATE', 'APPOINTMENT', id, '')
     return updated
   } catch (error) {
     throwPrismaError(error)

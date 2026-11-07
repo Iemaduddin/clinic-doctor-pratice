@@ -1,13 +1,31 @@
 <script setup lang="ts">
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiHeartPulseLine } from 'oh-vue-icons/icons/ri'
-import type { MedicalServiceRow, ServicePayload } from '~~/shared/types/admin'
+import type { MedicalServiceRow, Paginated, ServicePayload } from '~~/shared/types/admin'
 
 addIcons(RiAddLine, RiDeleteBinLine, RiEditLine, RiHeartPulseLine)
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
-const { data: services, refresh, pending } = await useFetch<MedicalServiceRow[]>('/api/admin/services')
+const search = ref('')
+const debouncedSearch = ref('')
+const page = ref(1)
+const pageSize = ref(10)
+let searchTimer: ReturnType<typeof setTimeout>
+watch(search, (value) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    debouncedSearch.value = value
+    page.value = 1
+  }, 300)
+})
+watch(pageSize, () => { page.value = 1 })
+
+const { data, refresh, pending } = await useFetch<Paginated<MedicalServiceRow>>('/api/admin/services', {
+  query: { page, pageSize, search: debouncedSearch },
+  watch: [page, pageSize, debouncedSearch]
+})
+const services = computed(() => data.value?.items ?? [])
 
 const showForm = ref(false)
 const editing = ref<MedicalServiceRow | null>(null)
@@ -92,6 +110,13 @@ useHead({ title: 'Kelola Layanan | Klinik Sehat' })
     <p v-if="pageError" class="mb-4 rounded-lg bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]" role="alert">{{ pageError }}</p>
     <p v-if="notice" class="mb-4 rounded-lg bg-[#ecfdf5] px-4 py-3 text-sm text-sage-dark" role="status">{{ notice }}</p>
 
+    <div class="mb-4 flex flex-wrap gap-3">
+      <input v-model="search" type="search" placeholder="Cari nama layanan..." aria-label="Cari layanan" class="h-[42px] min-w-60 flex-1 rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-base text-navy outline-none focus:border-navy">
+      <select v-model.number="pageSize" aria-label="Jumlah baris per halaman" class="h-[42px] rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-base text-navy outline-none focus:border-navy">
+        <option :value="10">10 per halaman</option><option :value="25">25 per halaman</option><option :value="50">50 per halaman</option>
+      </select>
+    </div>
+
     <div class="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white">
       <div v-if="pending" class="p-8 text-center text-base text-[#64748b]">Memuat layanan...</div>
       <div v-else-if="!services?.length" class="p-10 text-center">
@@ -118,6 +143,10 @@ useHead({ title: 'Kelola Layanan | Klinik Sehat' })
             </tr>
           </tbody>
         </table>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-5 py-4 text-sm text-[#64748b]">
+        <span>Menampilkan {{ data?.total ? ((page - 1) * pageSize + 1) : 0 }}–{{ Math.min(page * pageSize, data?.total ?? 0) }} dari {{ data?.total ?? 0 }} layanan</span>
+        <div class="flex items-center gap-2"><button type="button" :disabled="page <= 1 || pending" class="rounded-lg border border-[#e2e8f0] px-3 py-2 font-medium text-navy disabled:opacity-40" @click="page--">Sebelumnya</button><span>Halaman {{ page }} dari {{ data?.totalPages ?? 1 }}</span><button type="button" :disabled="page >= (data?.totalPages ?? 1) || pending" class="rounded-lg border border-[#e2e8f0] px-3 py-2 font-medium text-navy disabled:opacity-40" @click="page++">Berikutnya</button></div>
       </div>
     </div>
 

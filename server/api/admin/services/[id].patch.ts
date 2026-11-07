@@ -3,6 +3,7 @@ import { serviceSchema } from '~~/shared/validation/admin'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
 import { requireAdmin } from '~~/server/utils/rbac'
 import { parseBody } from '~~/server/utils/validation'
+import { logAdminAction } from '~~/server/utils/audit-log'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
@@ -12,7 +13,9 @@ export default defineEventHandler(async (event) => {
   const data = await parseBody(event, serviceSchema)
 
   try {
-    return await prisma.medicalService.update({ where: { id }, data })
+    const result = await prisma.medicalService.update({ where: { id }, data })
+    await logAdminAction(event, 'UPDATE', 'SERVICE', id, '')
+    return result
   } catch (error) {
     throwPrismaError(error)
   }

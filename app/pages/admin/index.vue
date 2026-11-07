@@ -104,7 +104,7 @@ useHead({ title: 'Dashboard Admin | Klinik Sehat' })
 
     <div v-if="error" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c]" role="alert">
       <span>Ringkasan belum dapat dimuat.</span>
-      <button type="button" class="font-semibold underline" @click="refresh">Coba lagi</button>
+      <button type="button" class="font-semibold underline" @click="() => refresh()">Coba lagi</button>
     </div>
 
     <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Statistik klinik">

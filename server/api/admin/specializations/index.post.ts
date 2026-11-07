@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { prisma } from '~~/lib/prisma'
 import { specializationSchema } from '~~/shared/validation/admin'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
@@ -14,6 +15,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const specialization = await prisma.specialization.create({ data: { ...data, slug } })
+    await logAdminAction(event, 'CREATE', 'SPECIALIZATION', specialization.id, '')
     setResponseStatus(event, 201)
     return specialization
   } catch (error) {

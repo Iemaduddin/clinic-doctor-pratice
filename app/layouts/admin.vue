@@ -8,7 +8,9 @@ import {
   RiLogoutBoxRLine,
   RiStethoscopeLine,
    RiTimeLine,
-   RiGroupLine
+   RiGroupLine,
+   RiFileTextLine,
+   RiUserLine
  } from 'oh-vue-icons/icons/ri'
 import { authClient } from '~~/lib/auth-client'
 
@@ -20,7 +22,9 @@ addIcons(
   RiLogoutBoxRLine,
   RiStethoscopeLine,
   RiTimeLine,
-  RiGroupLine
+  RiGroupLine,
+  RiFileTextLine,
+  RiUserLine
 )
 
 const links = [
@@ -33,7 +37,17 @@ const links = [
 
 const { data: session } = await authClient.useSession(useFetch)
 const user = computed(() => session.value?.user as { name?: string; email?: string; role?: string } | undefined)
-const visibleLinks = computed(() => user.value?.role === 'SUPER_ADMIN' ? [...links, { to: '/admin/users', label: 'Pengguna', icon: 'ri-group-line' }] : links)
+const visibleLinks = computed(() => {
+  const menu = [...links]
+  if (user.value?.role === 'SUPER_ADMIN' || user.value?.role === 'CLINIC_ADMIN') {
+    menu.push({ to: '/admin/content', label: 'Konten', icon: 'ri-file-text-line', exact: false })
+  }
+  if (user.value?.role === 'SUPER_ADMIN') {
+    menu.push({ to: '/admin/users', label: 'Pengguna', icon: 'ri-group-line', exact: false })
+    menu.push({ to: '/admin/audit-logs', label: 'Audit Log', icon: 'ri-file-text-line', exact: false })
+  }
+  return menu
+})
 
 async function logout() {
   await authClient.signOut()
@@ -65,6 +79,9 @@ async function logout() {
           <p class="truncate text-sm font-semibold text-navy">{{ user?.name || 'Administrator' }}</p>
           <p class="truncate text-xs text-[#64748b]">{{ user?.email }}</p>
         </div>
+        <NuxtLink to="/account" class="flex items-center gap-2 px-3 text-sm font-medium text-[#64748b] transition-colors hover:text-navy">
+          <OhVueIcon name="ri-user-line" /> Akun saya
+        </NuxtLink>
         <NuxtLink to="/" class="flex items-center gap-2 px-3 text-sm font-medium text-[#64748b] transition-colors hover:text-navy">
           <OhVueIcon name="ri-arrow-left-line" /> Lihat situs
         </NuxtLink>

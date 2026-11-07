@@ -1,3 +1,4 @@
+import { logAdminAction } from '~~/server/utils/audit-log'
 import { prisma } from '~~/lib/prisma'
 import { scheduleSchema } from '~~/shared/validation/admin'
 import { throwPrismaError } from '~~/server/utils/prisma-error'
@@ -12,11 +13,13 @@ export default defineEventHandler(async (event) => {
   const data = await parseBody(event, scheduleSchema)
 
   try {
-    return await prisma.doctorSchedule.update({
+    const schedule = await prisma.doctorSchedule.update({
       where: { id },
       data,
       include: { doctor: { select: { id: true, name: true, isActive: true } } }
     })
+    await logAdminAction(event, 'UPDATE', 'SCHEDULE', schedule.id, '')
+    return schedule
   } catch (error) {
     throwPrismaError(error)
   }
