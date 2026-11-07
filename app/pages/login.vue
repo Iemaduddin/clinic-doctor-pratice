@@ -11,9 +11,14 @@ const pending = ref(false)
 const errorMessage = ref('')
 const { data: session } = await authClient.useSession(useFetch)
 
+function homeForRole(role?: string) {
+  if (role === 'SUPER_ADMIN' || role === 'CLINIC_ADMIN') return '/admin'
+  if (role === 'DOCTOR') return '/doctor'
+  return '/'
+}
+
 if (session.value) {
-  const role = (session.value.user as { role?: string }).role
-  await navigateTo(role === 'SUPER_ADMIN' || role === 'CLINIC_ADMIN' ? '/admin' : '/')
+  await navigateTo(homeForRole((session.value.user as { role?: string }).role))
 }
 
 async function submit() {
@@ -21,7 +26,7 @@ async function submit() {
   errorMessage.value = ''
 
   try {
-    const { error } = await authClient.signIn.email({
+    const { data, error } = await authClient.signIn.email({
       email: email.value,
       password: password.value
     })
@@ -31,7 +36,7 @@ async function submit() {
       return
     }
 
-    await navigateTo('/admin', { external: true })
+    await navigateTo(homeForRole((data?.user as { role?: string } | undefined)?.role), { external: true })
   } catch {
     errorMessage.value = 'Tidak dapat menghubungi server. Coba lagi.'
   } finally {
@@ -57,9 +62,9 @@ useHead({ title: 'Masuk Admin | Klinik Sehat' })
     <section class="flex items-center justify-center p-6 sm:p-12">
       <div class="w-full max-w-md">
         <NuxtLink to="/" class="mb-10 flex items-center gap-3 font-display text-lg font-bold text-navy lg:hidden"><span class="grid size-9 place-items-center rounded-xl bg-sage text-white"><OhVueIcon name="ri-heart-pulse-line" class="size-5" /></span>Klinik Sehat</NuxtLink>
-        <p class="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage">Masuk admin</p>
+        <p class="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage">Masuk portal</p>
         <h2 class="font-display text-3xl font-bold text-navy">Selamat datang kembali</h2>
-        <p class="mt-2 text-base text-[#64748b]">Gunakan akun administrator untuk melanjutkan.</p>
+        <p class="mt-2 text-base text-[#64748b]">Gunakan akun admin atau dokter untuk melanjutkan.</p>
 
         <form class="mt-8 space-y-4" @submit.prevent="submit">
           <div>

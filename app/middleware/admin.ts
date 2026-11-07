@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
   const route = useRoute()
   if (user.role !== 'SUPER_ADMIN' && user.role !== 'CLINIC_ADMIN') {
-    return navigateTo('/')
+    return navigateTo(user.role === 'DOCTOR' ? '/doctor' : '/')
   }
   if (route.path.startsWith('/admin/users') && user.role !== 'SUPER_ADMIN') {
     return navigateTo('/admin')

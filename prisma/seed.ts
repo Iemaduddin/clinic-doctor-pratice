@@ -76,7 +76,7 @@ async function seedClinicContent() {
     },
     {
       slug: 'sinta-maharani',
-      name: 'dr. Sinta Maharani',
+      name: 'dr. Andri Febrian',
       specializationSlug: 'dokter-umum',
       bio: 'Dokter umum untuk konsultasi kesehatan keluarga dan pemeriksaan rutin.',
       photoUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=720&q=80',
