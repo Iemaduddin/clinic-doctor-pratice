@@ -61,7 +61,7 @@ async function seedClinicContent() {
       name: 'dr. Maya Prameswari, Sp.PD',
       specializationSlug: 'penyakit-dalam',
       bio: 'Dokter spesialis penyakit dalam dengan pengalaman menangani pemeriksaan kesehatan dewasa dan penyakit kronis.',
-      photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=720&q=80',
+      photoUrl: '/images/doctors/maya-prameswari.jpg',
       slotDurationMinutes: 30,
       schedules: [{ dayOfWeek: 1, startTime: '08:00', endTime: '12:00' }, { dayOfWeek: 3, startTime: '08:00', endTime: '12:00' }, { dayOfWeek: 5, startTime: '08:00', endTime: '12:00' }]
     },
@@ -70,7 +70,7 @@ async function seedClinicContent() {
       name: 'dr. Adrian Nugroho, Sp.A',
       specializationSlug: 'kesehatan-anak',
       bio: 'Dokter spesialis anak yang berfokus pada pemantauan tumbuh kembang dan kesehatan anak.',
-      photoUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=720&q=80',
+      photoUrl: '/images/doctors/adrian-nugroho.jpg',
       slotDurationMinutes: 30,
       schedules: [{ dayOfWeek: 2, startTime: '14:00', endTime: '18:00' }, { dayOfWeek: 4, startTime: '14:00', endTime: '18:00' }, { dayOfWeek: 6, startTime: '14:00', endTime: '18:00' }]
     },
@@ -79,7 +79,7 @@ async function seedClinicContent() {
       name: 'dr. Andri Febrian',
       specializationSlug: 'dokter-umum',
       bio: 'Dokter umum untuk konsultasi kesehatan keluarga dan pemeriksaan rutin.',
-      photoUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=720&q=80',
+      photoUrl: '/images/doctors/andri-febrian.jpg',
       slotDurationMinutes: 30,
       schedules: [{ dayOfWeek: 2, startTime: '08:00', endTime: '12:00' }, { dayOfWeek: 4, startTime: '08:00', endTime: '12:00' }, { dayOfWeek: 6, startTime: '08:00', endTime: '12:00' }]
     }
@@ -156,9 +156,9 @@ async function seedClinicContent() {
   })
 
   const facilities = [
-    { id: 'facility-waiting-room', name: 'Ruang tunggu', description: 'Area nyaman untuk pasien dan keluarga.', imageUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=80', sortOrder: 1 },
-    { id: 'facility-consultation-room', name: 'Ruang konsultasi', description: 'Ruang privat untuk berbincang dengan tenaga medis.', imageUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=900&q=80', sortOrder: 2 },
-    { id: 'facility-examination-room', name: 'Area pemeriksaan', description: 'Area pemeriksaan dasar yang terjaga kebersihannya.', imageUrl: 'https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=80', sortOrder: 3 }
+    { id: 'facility-waiting-room', name: 'Ruang tunggu', description: 'Area nyaman untuk pasien dan keluarga.', imageUrl: '/images/facilities/ruang-tunggu.jpg', sortOrder: 1 },
+    { id: 'facility-consultation-room', name: 'Ruang konsultasi', description: 'Ruang privat untuk berbincang dengan tenaga medis.', imageUrl: '/images/facilities/ruang-konsultasi.jpg', sortOrder: 2 },
+    { id: 'facility-examination-room', name: 'Area pemeriksaan', description: 'Area pemeriksaan dasar yang terjaga kebersihannya.', imageUrl: '/images/facilities/area-pemeriksaan.jpg', sortOrder: 3 }
   ]
 
   for (const item of facilities) {

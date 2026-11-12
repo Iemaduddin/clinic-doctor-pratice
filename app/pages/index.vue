@@ -37,7 +37,7 @@ const { data: services } = await useFetch<PublicService[]>('/api/public/services
       <section class="grid min-h-[600px] items-center gap-[5%] px-[8%] pb-[70px] pt-[72px] max-md:grid-cols-1 max-md:gap-10 max-md:pt-14 md:grid-cols-2">
         <div>
           <p class="mb-6 text-sm font-bold uppercase tracking-[.17em] text-sage"><span class="mr-2 inline-block size-2 rounded-full bg-[#22c55e]"></span>Perawatan terpercaya, setiap hari</p>
-          <h1 class="font-display text-[clamp(40px,5vw,56px)] font-bold leading-[1.15] tracking-[-.035em]">Kesehatan Anda<br /><span class="text-sage">Prioritas Kami</span></h1>
+          <h1 class="font-display text-[clamp(40px,5vw,56px)] font-bold leading-[1.15] tracking-[-.035em]">Kesehatan Anda <br /><span class="text-sage">Prioritas Kami</span></h1>
           <p class="mb-7 mt-6 max-w-[430px] text-base leading-[1.8] text-[#475569]">Perawatan yang penuh perhatian dari tenaga medis berpengalaman. Kami hadir untuk membantu Anda dan keluarga hidup lebih sehat.</p>
           <div class="flex items-center gap-6">
             <NuxtLink class="inline-flex items-center gap-4 rounded-lg bg-navy px-7 py-3 text-base font-bold text-white transition-colors hover:bg-[#020617]" to="/booking">Jadwalkan konsultasi <OhVueIcon name="ri-arrow-right-up-line" aria-hidden="true" /></NuxtLink>
