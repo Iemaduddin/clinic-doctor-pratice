@@ -89,6 +89,9 @@ const { data: services } = await usePublicData<PublicService[]>('services')
       <LocationSection />
     </main>
 
-    <footer id="kontak" class="flex flex-col justify-between gap-4 px-[10%] pb-7 pt-14 text-sm text-[#64748b] md:flex-row md:items-center"><a class="flex items-center gap-2.5 font-display text-[15px] font-extrabold tracking-[.08em] text-navy" href="#home"><span class="grid size-8 place-items-center rounded-lg border border-sage text-xl text-sage"><OhVueIcon name="ri-add-line" /></span><span>KLINIK<span class="font-normal text-[#64748b]">SEHAT</span></span></a><p class="text-base">Merawat dengan hati, melayani dengan sepenuh hati.</p><span class="text-sm">© 2026 Klinik Sehat</span></footer>
+    <footer id="kontak" class="px-[10%] pb-7 pt-14 text-sm text-[#64748b]">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center"><a class="flex items-center gap-2.5 font-display text-[15px] font-extrabold tracking-[.08em] text-navy" href="#home"><span class="grid size-8 place-items-center rounded-lg border border-sage text-xl text-sage"><OhVueIcon name="ri-add-line" /></span><span>KLINIK<span class="font-normal text-[#64748b]">SEHAT</span></span></a><p class="text-base">Merawat dengan hati, melayani dengan sepenuh hati.</p><span class="text-sm">© 2026 Klinik Sehat</span></div>
+      <SiteCredit class="mt-7" />
+    </footer>
   </div>
 </template>

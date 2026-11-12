@@ -370,5 +370,8 @@ useHead({ title: 'Buat Reservasi Konsultasi | Klinik Sehat' })
         </form>
       </div>
     </main>
+    <div class="mx-auto max-w-3xl px-4 pb-8 sm:px-6">
+      <SiteCredit />
+    </div>
   </div>
 </template>

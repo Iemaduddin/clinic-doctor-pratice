@@ -274,5 +274,8 @@ useHead({ title: computed(() => `Reservasi ${code.value} | Klinik Sehat`) })
         </div>
       </div>
     </main>
+    <div class="mx-auto max-w-3xl px-4 pb-8 sm:px-6 print:hidden">
+      <SiteCredit />
+    </div>
   </div>
 </template>
