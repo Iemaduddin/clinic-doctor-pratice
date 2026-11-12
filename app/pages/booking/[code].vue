@@ -52,7 +52,13 @@ interface AppointmentDetail {
 const route = useRoute()
 const code = computed(() => String(route.params.code || '').toUpperCase())
 
-const { data: appointment, refresh, error } = await useFetch<AppointmentDetail>(`/api/public/appointments/${code.value}`)
+const { data: appointment, refresh, error } = await useAsyncData<AppointmentDetail | null>(
+  `appointment-${code.value}`,
+  () =>
+    isDemoMode()
+      ? Promise.resolve(demoAppointment(code.value) ?? null)
+      : $fetch<AppointmentDetail>(`/api/public/appointments/${code.value}`)
+)
 
 const showCancelModal = ref(false)
 const cancelPhone = ref('')
@@ -93,10 +99,14 @@ async function cancelBooking() {
   cancelError.value = ''
 
   try {
-    await $fetch(`/api/public/appointments/${code.value}/cancel`, {
-      method: 'POST',
-      body: { phone: cancelPhone.value }
-    })
+    if (isDemoMode()) {
+      demoCancelAppointment(code.value, cancelPhone.value)
+    } else {
+      await $fetch(`/api/public/appointments/${code.value}/cancel`, {
+        method: 'POST',
+        body: { phone: cancelPhone.value }
+      })
+    }
     cancelNotice.value = 'Reservasi berhasil dibatalkan.'
     showCancelModal.value = false
     await refresh()
@@ -182,7 +192,7 @@ useHead({ title: computed(() => `Reservasi ${code.value} | Klinik Sehat`) })
           <div class="p-6 sm:p-8 space-y-6">
             <!-- Doctor & Service -->
             <div class="flex items-start gap-4 border-b border-[#e2e8f0] pb-6">
-              <img v-if="appointment.doctor.photoUrl" :src="appointment.doctor.photoUrl" :alt="appointment.doctor.name" class="size-14 rounded-full object-cover border border-[#e2e8f0] print:hidden">
+              <img v-if="appointment.doctor.photoUrl" :src="assetUrl(appointment.doctor.photoUrl)" :alt="appointment.doctor.name" class="size-14 rounded-full object-cover border border-[#e2e8f0] print:hidden">
               <div v-else class="grid size-14 place-items-center rounded-full bg-[#f1f5f9] text-navy"><OhVueIcon name="ri-stethoscope-line" class="size-7" /></div>
               <div>
                 <p class="font-display text-xl font-bold text-navy">{{ appointment.doctor.name }}</p>

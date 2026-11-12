@@ -13,7 +13,7 @@ interface ClinicProfile {
   mapsUrl: string | null
 }
 
-const { data: clinic } = await useFetch<ClinicProfile>('/api/public/clinic')
+const { data: clinic } = await usePublicData<ClinicProfile>('clinic')
 
 function toDigits(phone: string) {
   return phone.replace(/[^0-9]/g, '').replace(/^0/, '62')

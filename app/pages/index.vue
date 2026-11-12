@@ -11,7 +11,7 @@ interface PublicService {
   durationMinutes: number
 }
 
-const { data: services } = await useFetch<PublicService[]>('/api/public/services')
+const { data: services } = await usePublicData<PublicService[]>('services')
 </script>
 
 <template>

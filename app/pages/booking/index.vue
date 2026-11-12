@@ -30,6 +30,7 @@ interface DoctorItem {
   photoUrl: string | null
   slotDurationMinutes: number
   specialization: { id: string; name: string }
+  schedules: Array<{ id: string; dayOfWeek: number; startTime: string; endTime: string }>
 }
 
 interface ServiceItem {
@@ -48,8 +49,8 @@ interface SlotItem {
 const route = useRoute()
 const router = useRouter()
 
-const { data: doctors } = await useFetch<DoctorItem[]>('/api/public/doctors')
-const { data: services } = await useFetch<ServiceItem[]>('/api/public/services')
+const { data: doctors } = await usePublicData<DoctorItem[]>('doctors')
+const { data: services } = await usePublicData<ServiceItem[]>('services')
 
 const step = ref(1)
 const selectedDoctorId = ref<string>(String(route.query.doctor || ''))
@@ -65,28 +66,31 @@ const note = ref('')
 const submitting = ref(false)
 const bookingError = ref('')
 
-const {
-  data: slots,
-  pending: loadingSlots,
-  refresh: refreshSlots
-} = await useFetch<SlotItem[]>('/api/public/slots', {
-  query: computed(() => ({
-    doctorId: selectedDoctorId.value,
-    date: selectedDate.value
-  })),
-  immediate: false
-})
+const slots = ref<SlotItem[]>([])
+const loadingSlots = ref(false)
 
-watch(
-  [selectedDoctorId, selectedDate],
-  () => {
-    selectedTime.value = ''
-    if (selectedDoctorId.value && selectedDate.value) {
-      refreshSlots()
-    }
-  },
-  { immediate: true }
-)
+async function refreshSlots() {
+  selectedTime.value = ''
+  if (!selectedDoctorId.value || !selectedDate.value) {
+    slots.value = []
+    return
+  }
+  loadingSlots.value = true
+  try {
+    const demoDoctor = isDemoMode() ? doctors.value?.find((item) => item.id === selectedDoctorId.value) : undefined
+    slots.value = demoDoctor
+      ? demoSlots(demoDoctor, selectedDate.value)
+      : await $fetch<SlotItem[]>('/api/public/slots', {
+          query: { doctorId: selectedDoctorId.value, date: selectedDate.value }
+        })
+  } catch {
+    slots.value = []
+  } finally {
+    loadingSlots.value = false
+  }
+}
+
+watch([selectedDoctorId, selectedDate], refreshSlots, { immediate: true })
 
 // Auto select first doctor and service if query params or list loaded
 onMounted(() => {
@@ -114,19 +118,30 @@ async function submitBooking() {
   bookingError.value = ''
 
   try {
-    const res = await $fetch<{ bookingCode: string }>('/api/public/appointments', {
-      method: 'POST',
-      body: {
-        doctorId: selectedDoctorId.value,
-        serviceId: selectedServiceId.value,
-        date: selectedDate.value,
-        startTime: selectedTime.value,
-        patientName: patientName.value,
-        patientPhone: patientPhone.value,
-        patientEmail: patientEmail.value || null,
-        note: note.value || null
-      }
-    })
+    const res = isDemoMode()
+      ? demoCreateAppointment({
+          doctor: selectedDoctor.value!,
+          service: selectedService.value!,
+          date: selectedDate.value,
+          startTime: selectedTime.value,
+          patientName: patientName.value,
+          patientPhone: patientPhone.value,
+          patientEmail: patientEmail.value || null,
+          note: note.value || null
+        })
+      : await $fetch<{ bookingCode: string }>('/api/public/appointments', {
+          method: 'POST',
+          body: {
+            doctorId: selectedDoctorId.value,
+            serviceId: selectedServiceId.value,
+            date: selectedDate.value,
+            startTime: selectedTime.value,
+            patientName: patientName.value,
+            patientPhone: patientPhone.value,
+            patientEmail: patientEmail.value || null,
+            note: note.value || null
+          }
+        })
 
     await router.push(`/booking/${res.bookingCode}`)
   } catch (error) {
@@ -195,7 +210,7 @@ useHead({ title: 'Buat Reservasi Konsultasi | Klinik Sehat' })
               :class="selectedDoctorId === doctor.id ? 'border-sage bg-[#ecfdf5] shadow-xs' : 'border-[#e2e8f0] hover:border-[#cbd5e1]'"
               @click="selectedDoctorId = doctor.id"
             >
-              <img v-if="doctor.photoUrl" :src="doctor.photoUrl" :alt="doctor.name" class="size-12 rounded-full object-cover">
+              <img v-if="doctor.photoUrl" :src="assetUrl(doctor.photoUrl)" :alt="doctor.name" class="size-12 rounded-full object-cover">
               <div v-else class="grid size-12 place-items-center rounded-full bg-[#f1f5f9] text-navy"><OhVueIcon name="ri-stethoscope-line" class="size-6" /></div>
               <div class="flex-1 min-w-0">
                 <p class="truncate font-semibold text-navy">{{ doctor.name }}</p>

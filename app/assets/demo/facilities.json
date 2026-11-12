@@ -1,0 +1,20 @@
+[
+  {
+    "id": "facility-waiting-room",
+    "name": "Ruang tunggu",
+    "description": "Area nyaman untuk pasien dan keluarga.",
+    "imageUrl": "/images/facilities/ruang-tunggu.jpg"
+  },
+  {
+    "id": "facility-consultation-room",
+    "name": "Ruang konsultasi",
+    "description": "Ruang privat untuk berbincang dengan tenaga medis.",
+    "imageUrl": "/images/facilities/ruang-konsultasi.jpg"
+  },
+  {
+    "id": "facility-examination-room",
+    "name": "Area pemeriksaan",
+    "description": "Area pemeriksaan dasar yang terjaga kebersihannya.",
+    "imageUrl": "/images/facilities/area-pemeriksaan.jpg"
+  }
+]

@@ -10,7 +10,7 @@ interface FaqItem {
   answer: string
 }
 
-const { data: faqs } = await useFetch<FaqItem[]>('/api/public/faqs')
+const { data: faqs } = await usePublicData<FaqItem[]>('faqs')
 </script>
 
 <template>

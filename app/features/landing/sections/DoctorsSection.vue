@@ -13,7 +13,7 @@ interface PublicDoctor {
 }
 
 const daysMap = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
-const { data: doctors } = await useFetch<PublicDoctor[]>('/api/public/doctors')
+const { data: doctors } = await usePublicData<PublicDoctor[]>('doctors')
 
 function formatDoctorSchedule(schedules: PublicDoctor['schedules']) {
   if (!schedules?.length) return 'Jadwal berdasarkan janji'
@@ -31,7 +31,7 @@ function formatDoctorSchedule(schedules: PublicDoctor['schedules']) {
 
     <div v-if="doctors?.length" class="mx-auto grid max-w-[1100px] gap-5 md:grid-cols-3">
       <article v-for="(doctor, index) in doctors" :key="doctor.id" class="relative flex flex-col rounded-xl border border-[#e2e8f0] bg-white p-6 shadow-[0_2px_6px_#0f172a0d]">
-        <img v-if="doctor.photoUrl" class="block h-[240px] w-full rounded-lg object-cover" :src="doctor.photoUrl" :alt="doctor.name" loading="lazy" decoding="async">
+        <img v-if="doctor.photoUrl" class="block h-[240px] w-full rounded-lg object-cover" :src="assetUrl(doctor.photoUrl)" :alt="doctor.name" loading="lazy" decoding="async">
         <div v-else class="grid h-[240px] w-full place-items-center rounded-lg bg-[#f1f5f9] text-navy"><OhVueIcon name="ri-stethoscope-line" class="size-12" /></div>
         <span class="mt-4 inline-block w-fit rounded-full bg-[#ecfdf5] px-2.5 py-1.5 text-xs font-semibold text-sage-dark">Dokter Aktif</span>
         <h3 class="mb-1 mt-3 font-display text-xl font-bold text-navy">{{ doctor.name }}</h3>

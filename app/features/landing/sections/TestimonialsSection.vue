@@ -6,7 +6,7 @@ interface Testimonial {
   rating: number
 }
 
-const { data: testimonials } = await useFetch<Testimonial[]>('/api/public/testimonials')
+const { data: testimonials } = await usePublicData<Testimonial[]>('testimonials')
 </script>
 
 <template>

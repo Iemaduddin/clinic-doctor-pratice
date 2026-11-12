@@ -1,0 +1,23 @@
+[
+  {
+    "id": "cmw61vcxg000suoq0hgllixzd",
+    "name": "Konsultasi Kesehatan Anak",
+    "slug": "konsultasi-kesehatan-anak",
+    "description": "Konsultasi tumbuh kembang, imunisasi, dan keluhan kesehatan anak.",
+    "durationMinutes": 30
+  },
+  {
+    "id": "cmw61vcxb000ruoq08jm7ysnt",
+    "name": "Konsultasi Penyakit Dalam",
+    "slug": "konsultasi-penyakit-dalam",
+    "description": "Konsultasi dan pemeriksaan kesehatan untuk keluhan penyakit dalam.",
+    "durationMinutes": 30
+  },
+  {
+    "id": "cmw61vcxi000tuoq0x5dmbyab",
+    "name": "Pemeriksaan Kesehatan Umum",
+    "slug": "pemeriksaan-kesehatan-umum",
+    "description": "Pemeriksaan awal dan konsultasi kesehatan untuk seluruh keluarga.",
+    "durationMinutes": 30
+  }
+]

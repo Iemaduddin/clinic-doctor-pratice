@@ -1,7 +1,17 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from '@tailwindcss/vite'
 
+const demo = process.env.NUXT_PUBLIC_DEMO === 'true' || process.env.NUXT_PUBLIC_DEMO === '1'
+
 export default defineNuxtConfig({
+  runtimeConfig: {
+    public: {
+      demo
+    }
+  },
+  nitro: demo
+    ? { prerender: { ignore: ['/admin', '/admin/**', '/doctor', '/doctor/**', '/account', '/login'] } }
+    : undefined,
   vite: { plugins: [tailwindcss()] },
   css: ['~/assets/css/main.css'],
   app: {

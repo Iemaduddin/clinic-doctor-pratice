@@ -1,0 +1,98 @@
+[
+  {
+    "id": "cmw61vcsu000cuoq07wc4j63d",
+    "name": "dr. Adrian Nugroho, Sp.A",
+    "slug": "adrian-nugroho",
+    "bio": "Dokter spesialis anak yang berfokus pada pemantauan tumbuh kembang dan kesehatan anak.",
+    "photoUrl": "/images/doctors/adrian-nugroho.jpg",
+    "slotDurationMinutes": 30,
+    "specialization": {
+      "id": "cmw61vcjj0001uoq0ybipc85r",
+      "name": "Kesehatan Anak"
+    },
+    "schedules": [
+      {
+        "id": "cmw61vcsv000euoq0257pki2z",
+        "dayOfWeek": 2,
+        "startTime": "14:00",
+        "endTime": "18:00"
+      },
+      {
+        "id": "cmw61vcsw000guoq0lnixhsm4",
+        "dayOfWeek": 4,
+        "startTime": "14:00",
+        "endTime": "18:00"
+      },
+      {
+        "id": "cmw61vcsx000iuoq01ylt5rjb",
+        "dayOfWeek": 6,
+        "startTime": "14:00",
+        "endTime": "18:00"
+      }
+    ]
+  },
+  {
+    "id": "cmw61vcx4000kuoq0ss4ky959",
+    "name": "dr. Andri Febrian",
+    "slug": "sinta-maharani",
+    "bio": "Dokter umum untuk konsultasi kesehatan keluarga dan pemeriksaan rutin.",
+    "photoUrl": "/images/doctors/andri-febrian.jpg",
+    "slotDurationMinutes": 30,
+    "specialization": {
+      "id": "cmw61vcjk0002uoq05tsngpty",
+      "name": "Dokter Umum"
+    },
+    "schedules": [
+      {
+        "id": "cmw61vcx6000muoq043llw49n",
+        "dayOfWeek": 2,
+        "startTime": "08:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "cmw61vcx7000ouoq0cm7yidtc",
+        "dayOfWeek": 4,
+        "startTime": "08:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "cmw61vcx9000quoq0me71q3t7",
+        "dayOfWeek": 6,
+        "startTime": "08:00",
+        "endTime": "12:00"
+      }
+    ]
+  },
+  {
+    "id": "cmw61vco30004uoq0mv2luv28",
+    "name": "dr. Maya Prameswari, Sp.PD",
+    "slug": "maya-prameswari",
+    "bio": "Dokter spesialis penyakit dalam dengan pengalaman menangani pemeriksaan kesehatan dewasa dan penyakit kronis.",
+    "photoUrl": "/images/doctors/maya-prameswari.jpg",
+    "slotDurationMinutes": 30,
+    "specialization": {
+      "id": "cmw61vcjd0000uoq0t2h1nkoq",
+      "name": "Penyakit Dalam"
+    },
+    "schedules": [
+      {
+        "id": "cmw61vco90006uoq0fjx1j68s",
+        "dayOfWeek": 1,
+        "startTime": "08:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "cmw61vcod0008uoq05vye6esi",
+        "dayOfWeek": 3,
+        "startTime": "08:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "cmw61vcoe000auoq0iwlrx9sn",
+        "dayOfWeek": 5,
+        "startTime": "08:00",
+        "endTime": "12:00"
+      }
+    ]
+  }
+]
